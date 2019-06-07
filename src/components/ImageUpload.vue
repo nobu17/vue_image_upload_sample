@@ -5,6 +5,8 @@
         <!-- 画像のプレビュー表示領域 -->
         <v-img :src="upimage.fileUrl" aspect-ratio="2" :contain="true"></v-img>
         <p>{{ upimage.fileName }}</p>
+        <p>圧縮前サイズ(MB):{{ fileInfo.before.size }}</p>
+        <p>圧縮後サイズ(MB):{{ fileInfo.after.size }}</p>
       </v-flex>
       <v-flex xs12>
         <!-- ファイルの選択 -->
@@ -24,7 +26,11 @@ export default {
   data() {
     return {
       isUploading: false,
-      upimage: { fileUrl: "", fileName: "" }
+      upimage: { fileUrl: "", fileName: "", blob: null },
+      fileInfo: {
+        before: { size: 0 },
+        after: { size: 0 }
+      }
     };
   },
   methods: {
@@ -35,11 +41,17 @@ export default {
       if (!file) {
         return;
       }
+
       try {
         // 圧縮した画像を取得
-        this.upimage.fileUrl = await ImageUtil.getCompressImageDataUrlAsync(
-          file
-        );
+        const compFile = await ImageUtil.getCompressImageFileAsync(file);
+
+        //ファイルサイズの表示
+        this.fileInfo.before.size = (file.size / 1024 / 1024).toFixed(4);
+        this.fileInfo.after.size = (compFile.size / 1024 / 1024).toFixed(4);
+        // 画像情報の設定
+        this.upimage.blob = compFile;
+        this.upimage.fileUrl = await ImageUtil.getDataUrlFromFile(compFile);
         this.upimage.fileName = file.name;
       } catch (err) {
         // エラーメッセージ等を表示
@@ -47,11 +59,10 @@ export default {
         this.isUploading = false;
       }
     },
-    async submit() {
+    submit() {
       const fd = new FormData();
       try {
-        const file = await ImageUtil.getFilefromDataUrl(this.upimage);
-        fd.append(this.upimage.fileName, file, this.upimage.fileName);
+        fd.append(this.upimage.fileName, this.upimage.blob, this.upimage.fileName);
         // ここにサーバーへのアップロード処理を実装する
       } catch (err) {
         // エラーメッセージ等を表示

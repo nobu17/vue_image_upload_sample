@@ -1,32 +1,26 @@
 import imageCompression from "browser-image-compression";
 
 export default {
-  // アップロードされた画像ファイルのdataurlを取得
-  async getCompressImageDataUrlAsync(file) {
+  // アップロードされた画像ファイルを取得
+  async getCompressImageFileAsync(file) {
     const options = {
       maxSizeMB: 1, // 最大ファイルサイズ
       maxWidthOrHeight: 800 // 最大画像幅もしくは高さ
     };
     try {
       // 圧縮画像の生成
-      const compressedFile = await imageCompression(file, options);
-      console.log(
-        `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
-      );
-      console.log(compressedFile);
-      // objectdataUrlの取得
-      return imageCompression.getDataUrlFromFile(compressedFile);
+      return await imageCompression(file, options);
     } catch (error) {
-      console.error('getCompressImageAsync is error', error);
+      console.error("getCompressImageFileAsync is error", error);
       throw error;
     }
   },
-  // dataurlをfileに戻す
-  async getFilefromDataUrl(dataUrl) {
+  // プレビュー表示用のdataurlを取得
+  async getDataUrlFromFile(file) {
     try {
-      await imageCompression.getFilefromDataUrl(dataUrl);
+      return await imageCompression.getDataUrlFromFile(file);
     } catch (error) {
-      console.error('getFilefromDataUrl is error', error);
+      console.error("getDataUrlFromFile is error", error);
       throw error;
     }
   }
