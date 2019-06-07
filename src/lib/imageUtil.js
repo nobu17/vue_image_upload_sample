@@ -1,7 +1,8 @@
 import imageCompression from "browser-image-compression";
 
 export default {
-  async getCompressImageAsync(file) {
+  // アップロードされた画像ファイルのdataurlを取得
+  async getCompressImageDataUrlAsync(file) {
     const options = {
       maxSizeMB: 1, // 最大ファイルサイズ
       maxWidthOrHeight: 800 // 最大画像幅もしくは高さ
@@ -20,6 +21,7 @@ export default {
       throw error;
     }
   },
+  // dataurlをfileに戻す
   async getFilefromDataUrl(dataUrl) {
     try {
       await imageCompression.getFilefromDataUrl(dataUrl);
